@@ -204,6 +204,8 @@ class PlayerMPD:
                                                                  self.mpd_status_poll_interval, self._mpd_status_poll)
         self.status_thread.start()
 
+        self.solenoid_thread = multitimer.GenericTimerClass('mpd.solenoid', 0, trigger_solenoid)
+
     def exit(self):
         logger.debug("Exit routine of playermpd started")
         self.status_is_closing = True
@@ -304,14 +306,28 @@ class PlayerMPD:
         self._db_wait_for_update(state)
         return state
 
+    def schedule_solenoid(self):
+        status = self.mpd_client.status()
+        logger.debug(status)
+        if status['state'] == 'play':
+            duration = float(status['duration'])
+            elapsed = float(status['elapsed'])
+            self.solenoid_thread.start(duration - elapsed)
+
+    def cancel_solenoid(self):
+        self.solenoid_thread.cancel()
+
     @plugs.tag
     def play(self):
         with self.mpd_lock:
+            self.cancel_solenoid()
             self.mpd_client.play()
+            self.schedule_solenoid()
 
     @plugs.tag
     def stop(self):
         with self.mpd_lock:
+            self.cancel_solenoid()
             self.mpd_client.stop()
 
     @plugs.tag
@@ -322,25 +338,33 @@ class PlayerMPD:
         on the reader again. What happens on re-placement depends on configured second swipe option
         """
         with self.mpd_lock:
+            self.cancel_solenoid()
             self.mpd_client.pause(state)
+            self.schedule_solenoid()
 
     @plugs.tag
     def prev(self):
         logger.debug("Prev")
         with self.mpd_lock:
+            self.cancel_solenoid()
             self.mpd_client.previous()
+            self.schedule_solenoid()
 
     @plugs.tag
     def next(self):
         """Play next track in current playlist"""
         logger.debug("Next")
         with self.mpd_lock:
+            self.cancel_solenoid()
             self.mpd_client.next()
+            self.schedule_solenoid()
 
     @plugs.tag
     def seek(self, new_time):
         with self.mpd_lock:
+            self.cancel_solenoid()
             self.mpd_client.seekcur(new_time)
+            self.schedule_solenoid()
 
     @plugs.tag
     def rewind(self):
@@ -360,13 +384,17 @@ class PlayerMPD:
         Will reset settings to folder config"""
         logger.debug("Replay")
         with self.mpd_lock:
+            self.cancel_solenoid()
             self.play_folder(self.music_player_status['player_status']['last_played_folder'])
+            self.schedule_solenoid()
 
     @plugs.tag
     def toggle(self):
         """Toggle pause state, i.e. do a pause / resume depending on current state"""
         with self.mpd_lock:
+            self.cancel_solenoid()
             self.mpd_client.pause()
+            self.schedule_solenoid()
 
     @plugs.tag
     def replay_if_stopped(self):
@@ -472,12 +500,7 @@ class PlayerMPD:
             self.mpd_client.clear()
             self.mpd_client.addid(song_url)
             self.mpd_client.play()
-            duration = self.mpd_client.currentsong()['duration']
-            duration_typed = float(duration)
-            logger.debug(f"sleep for {duration_typed}s")
-            time.sleep(duration_typed)
-            logger.debug("sleep done")
-        trigger_solenoid()
+            self.schedule_solenoid()
 
     @plugs.tag
     def resume(self):
