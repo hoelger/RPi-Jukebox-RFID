@@ -466,10 +466,18 @@ class PlayerMPD:
 
     @plugs.tag
     def play_single(self, song_url):
+        logger.debug(f"play_single(): {song_url}")
+        trigger_solenoid()
         with self.mpd_lock:
             self.mpd_client.clear()
             self.mpd_client.addid(song_url)
             self.mpd_client.play()
+            duration = self.mpd_client.currentsong()['duration']
+            duration_typed = float(duration)
+            logger.debug(f"sleep for {duration_typed}s")
+            time.sleep(duration_typed)
+            logger.debug("sleep done")
+        trigger_solenoid()
 
     @plugs.tag
     def resume(self):
@@ -756,3 +764,11 @@ def initialize():
 def atexit(**ignored_kwargs):
     global player_ctrl
     return player_ctrl.exit()
+
+def trigger_solenoid():
+    try:
+        logger.debug("Triggering solenoid")
+        time.sleep(1)
+        logger.debug("Triggering solenoid done")
+    except Exception as e:
+        logger.error(f"An error occurred: {e}")
