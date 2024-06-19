@@ -353,7 +353,7 @@ class PlayerMPD:
     def play_gong_interval(self, iterations: int = 1, minutes: int = 0, seconds: int = 0):
         logger.debug(f"play_gong_interval ({iterations} x {minutes}m {seconds}s)")
         self.trigger_gong()
-        multitimer.MultiTimer(minutes * 60 + seconds, iterations, self.trigger_gong).start()
+        multitimer.GenericMultiTimerClass('mpd.gong_interval', iterations, minutes * 60 + seconds, self.trigger_gong).start()
 
     @plugs.tag
     def play(self):

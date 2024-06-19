@@ -70,7 +70,7 @@ class MultiTimer(threading.Thread):
                 else:
                     self.event.clear()
             # logger.debug(f"Execute timer action #{iteration} of '{self.name}'.")
-            self.function(*self.args, iteration=iteration, **self.kwargs)
+            self.function(iteration=iteration, *self.args, **self.kwargs)
 
     def run(self):
         if self.publish_callback is not None:
@@ -225,7 +225,7 @@ class GenericMultiTimerClass(GenericTimerClass):
     """
     Interface for plugin / RPC accessibility for an event timer that performs an action n times every m seconds
     """
-    def __init__(self, name, iterations: int, wait_seconds_per_iteration: float, callee, args=None, kwargs=None):
+    def __init__(self, name, iterations: int, wait_seconds_per_iteration: float, function, args=None, kwargs=None):
         """
         :param iterations: Number of times callee is called
         :param wait_seconds_per_iteration: Wait in seconds before each iteration
@@ -235,18 +235,16 @@ class GenericMultiTimerClass(GenericTimerClass):
         :param args:
         :param kwargs:
         """
-        super().__init__(name, wait_seconds_per_iteration, None, None, None)
-        self.class_args = args if args is not None else []
-        self.class_kwargs = kwargs if kwargs is not None else {}
+        super().__init__(name, wait_seconds_per_iteration, None, args, kwargs)
         self._iterations = iterations
-        self._callee = callee
+        # Do not hide away the argument 'iteration' (as done in GenericTimerClass)
+        self._function = lambda iteration, *largs, **lkwargs: function(iteration=iteration, *largs, **lkwargs)
 
     @plugin.tag
     def start(self, iterations=None, wait_seconds_per_iteration=None):
         """Start the timer (with default or new parameters)"""
         if iterations is not None:
             self._iterations = iterations
-        self._function = self._callee(*self.class_args, iterations=self._iterations, **self.class_kwargs)
         super().start(wait_seconds_per_iteration)
 
     @plugin.tag
