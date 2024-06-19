@@ -500,6 +500,7 @@ class PlayerMPD:
             self.mpd_client.clear()
             self.mpd_client.addid(song_url)
             self.mpd_client.play()
+            self.cancel_solenoid()
             self.schedule_solenoid()
 
     @plugs.tag
@@ -509,6 +510,8 @@ class PlayerMPD:
             elapsed = self.current_folder_status["ELAPSED"]
             self.mpd_client.seek(songpos, elapsed)
             self.mpd_client.play()
+            self.cancel_solenoid()
+            self.schedule_solenoid()
 
     @plugs.tag
     def play_card(self, folder: str, recursive: bool = False):
