@@ -317,7 +317,7 @@ class PlayerMPD:
     def cancel_gong(self):
         self.gong_thread.cancel()
 
-    def trigger_gong(self):
+    def trigger_gong(self, iteration=None):
         """
             Blocking function, because we want the audio file to start after the gong fully sounds.
         """
@@ -341,14 +341,19 @@ class PlayerMPD:
     def play_gong_timer(self, minutes: int = 0, seconds: int = 0):
         logger.debug(f"play_gong_timer ({minutes}m {seconds}s)")
         self.mpd_client.stop()
+        self.gong_thread.cancel()
 
         # start gong
         self.trigger_gong()
 
         # end gong
-        self.gong_thread.cancel()
-        time.sleep(0.01) # required so the 'cancel' takes effect
         self.gong_thread.start(minutes * 60 + seconds)
+
+    @plugs.tag
+    def play_gong_interval(self, iterations: int = 1, minutes: int = 0, seconds: int = 0):
+        logger.debug(f"play_gong_interval ({iterations} x {minutes}m {seconds}s)")
+        self.trigger_gong()
+        multitimer.MultiTimer(minutes * 60 + seconds, iterations, self.trigger_gong).start()
 
     @plugs.tag
     def play(self):
