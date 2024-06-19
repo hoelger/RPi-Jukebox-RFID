@@ -204,7 +204,7 @@ class PlayerMPD:
                                                                  self.mpd_status_poll_interval, self._mpd_status_poll)
         self.status_thread.start()
 
-        self.solenoid_thread = multitimer.GenericTimerClass('mpd.solenoid', 0, trigger_solenoid)
+        self.solenoid_thread = multitimer.GenericTimerClass('mpd.solenoid', 0, self.trigger_solenoid)
 
     def exit(self):
         logger.debug("Exit routine of playermpd started")
@@ -316,6 +316,26 @@ class PlayerMPD:
 
     def cancel_solenoid(self):
         self.solenoid_thread.cancel()
+
+    def trigger_solenoid(self):
+        """
+            Blocking function, because we want the audio file to start after the gong fully sounds.
+        """
+        try:
+            logger.debug("Triggering solenoid")
+            with self.mpd_lock:
+                from pathlib import Path
+                file = str(Path.cwd().parent.parent) + '/shared/audiofolders/Bell.mp3'
+                self.mpd_client.clear()
+                self.mpd_client.addid(file)
+                self.mpd_client.play()
+            status = self.mpd_client.status()
+            duration = float(status['duration'])
+            elapsed = float(status['elapsed'])
+            time.sleep(duration-elapsed)
+            logger.debug("Triggering solenoid done")
+        except Exception as e:
+            logger.error(f"An error occurred: {e}")
 
     @plugs.tag
     def play(self):
@@ -495,7 +515,7 @@ class PlayerMPD:
     @plugs.tag
     def play_single(self, song_url):
         logger.debug(f"play_single(): {song_url}")
-        trigger_solenoid()
+        self.trigger_solenoid()
         with self.mpd_lock:
             self.mpd_client.clear()
             self.mpd_client.addid(song_url)
@@ -790,11 +810,3 @@ def initialize():
 def atexit(**ignored_kwargs):
     global player_ctrl
     return player_ctrl.exit()
-
-def trigger_solenoid():
-    try:
-        logger.debug("Triggering solenoid")
-        time.sleep(1)
-        logger.debug("Triggering solenoid done")
-    except Exception as e:
-        logger.error(f"An error occurred: {e}")
