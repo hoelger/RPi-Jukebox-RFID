@@ -204,7 +204,7 @@ class PlayerMPD:
                                                                  self.mpd_status_poll_interval, self._mpd_status_poll)
         self.status_thread.start()
 
-        self.gong_thread = multitimer.GenericTimerClass('mpd.gong', 0, self.trigger_gong)
+        self.end_gong_timer = multitimer.GenericTimerClass('mpd.end_gong', 0, self.trigger_gong)
 
     def exit(self):
         logger.debug("Exit routine of playermpd started")
@@ -312,10 +312,10 @@ class PlayerMPD:
         if status['state'] == 'play':
             duration = float(status['duration'])
             elapsed = float(status['elapsed'])
-            self.gong_thread.start(duration - elapsed)
+            self.end_gong_timer.start(duration - elapsed)
 
     def cancel_gong(self):
-        self.gong_thread.cancel()
+        self.end_gong_timer.cancel()
 
     def trigger_gong(self, iteration=None):
         """
@@ -341,13 +341,13 @@ class PlayerMPD:
     def play_gong_timer(self, minutes: int = 0, seconds: int = 0):
         logger.debug(f"play_gong_timer ({minutes}m {seconds}s)")
         self.mpd_client.stop()
-        self.gong_thread.cancel()
+        self.end_gong_timer.cancel()
 
         # start gong
         self.trigger_gong()
 
         # end gong
-        self.gong_thread.start(minutes * 60 + seconds)
+        self.end_gong_timer.start(minutes * 60 + seconds)
 
     @plugs.tag
     def play_gong_interval(self, iterations: int = 1, minutes: int = 0, seconds: int = 0):
