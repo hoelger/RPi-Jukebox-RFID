@@ -205,6 +205,7 @@ class PlayerMPD:
         self.status_thread.start()
 
         self.end_gong_timer = multitimer.GenericTimerClass('mpd.end_gong', 0, self.trigger_gong)
+        self.interval_gong_timer = multitimer.GenericMultiTimerClass('mpd.interval_gong', 0, 0, self.trigger_gong)
 
     def exit(self):
         logger.debug("Exit routine of playermpd started")
@@ -314,8 +315,9 @@ class PlayerMPD:
             elapsed = float(status['elapsed'])
             self.end_gong_timer.start(duration - elapsed)
 
-    def cancel_gong(self):
+    def cancel_all_gongs(self):
         self.end_gong_timer.cancel()
+        self.interval_gong_timer.cancel()
 
     def trigger_gong(self, iteration=None):
         """
@@ -341,7 +343,7 @@ class PlayerMPD:
     def play_gong_timer(self, minutes: int = 0, seconds: int = 0):
         logger.debug(f"play_gong_timer ({minutes}m {seconds}s)")
         self.mpd_client.stop()
-        self.end_gong_timer.cancel()
+        self.cancel_all_gongs()
 
         # start gong
         self.trigger_gong()
@@ -352,20 +354,22 @@ class PlayerMPD:
     @plugs.tag
     def play_gong_interval(self, iterations: int = 1, minutes: int = 0, seconds: int = 0):
         logger.debug(f"play_gong_interval ({iterations} x {minutes}m {seconds}s)")
+        self.mpd_client.stop()
+        self.cancel_all_gongs()
         self.trigger_gong()
-        multitimer.GenericMultiTimerClass('mpd.gong_interval', iterations, minutes * 60 + seconds, self.trigger_gong).start()
+        self.interval_gong_timer.start(iterations, minutes * 60 + seconds)
 
     @plugs.tag
     def play(self):
         with self.mpd_lock:
-            self.cancel_gong()
+            self.cancel_all_gongs()
             self.mpd_client.play()
             self.schedule_gong()
 
     @plugs.tag
     def stop(self):
         with self.mpd_lock:
-            self.cancel_gong()
+            self.cancel_all_gongs()
             self.mpd_client.stop()
 
     @plugs.tag
@@ -376,7 +380,7 @@ class PlayerMPD:
         on the reader again. What happens on re-placement depends on configured second swipe option
         """
         with self.mpd_lock:
-            self.cancel_gong()
+            self.cancel_all_gongs()
             self.mpd_client.pause(state)
             self.schedule_gong()
 
@@ -384,7 +388,7 @@ class PlayerMPD:
     def prev(self):
         logger.debug("Prev")
         with self.mpd_lock:
-            self.cancel_gong()
+            self.cancel_all_gongs()
             self.mpd_client.previous()
             self.schedule_gong()
 
@@ -393,14 +397,14 @@ class PlayerMPD:
         """Play next track in current playlist"""
         logger.debug("Next")
         with self.mpd_lock:
-            self.cancel_gong()
+            self.cancel_all_gongs()
             self.mpd_client.next()
             self.schedule_gong()
 
     @plugs.tag
     def seek(self, new_time):
         with self.mpd_lock:
-            self.cancel_gong()
+            self.cancel_all_gongs()
             self.mpd_client.seekcur(new_time)
             self.schedule_gong()
 
@@ -422,7 +426,7 @@ class PlayerMPD:
         Will reset settings to folder config"""
         logger.debug("Replay")
         with self.mpd_lock:
-            self.cancel_gong()
+            self.cancel_all_gongs()
             self.play_folder(self.music_player_status['player_status']['last_played_folder'])
             self.schedule_gong()
 
@@ -430,7 +434,7 @@ class PlayerMPD:
     def toggle(self):
         """Toggle pause state, i.e. do a pause / resume depending on current state"""
         with self.mpd_lock:
-            self.cancel_gong()
+            self.cancel_all_gongs()
             self.mpd_client.pause()
             self.schedule_gong()
 
@@ -538,7 +542,7 @@ class PlayerMPD:
             self.mpd_client.clear()
             self.mpd_client.addid(song_url)
             self.mpd_client.play()
-            self.cancel_gong()
+            self.cancel_all_gongs()
             self.schedule_gong()
 
     @plugs.tag
@@ -548,7 +552,7 @@ class PlayerMPD:
             elapsed = self.current_folder_status["ELAPSED"]
             self.mpd_client.seek(songpos, elapsed)
             self.mpd_client.play()
-            self.cancel_gong()
+            self.cancel_all_gongs()
             self.schedule_gong()
 
     @plugs.tag
