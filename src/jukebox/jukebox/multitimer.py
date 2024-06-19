@@ -42,7 +42,7 @@ class MultiTimer(threading.Thread):
 
     def cancel(self):
         """Stop the timer if it hasn't finished all iterations yet."""
-        logger.debug(f"Cancel timer '{self.name}.")
+        logger.debug(f"Cancel timer '{self.name}'.")
         # Assignment to _cmd_cancel is atomic -> OK for threads
         self._cmd_cancel = True
         self.event.set()
@@ -76,10 +76,10 @@ class MultiTimer(threading.Thread):
         if self.publish_callback is not None:
             self.publish_callback()
         if self.iterations < 0:
-            logger.debug(f"Start timer '{self.name} in endless mode")
+            logger.debug(f"Start timer '{self.name}' in endless mode")
             self.run_endless()
         else:
-            logger.debug(f"Start timer '{self.name} with {self.iterations} iterations")
+            logger.debug(f"Start timer '{self.name}' with {self.iterations} iterations")
             self.run_limited()
         self._cmd_cancel = True
         self.event.set()
