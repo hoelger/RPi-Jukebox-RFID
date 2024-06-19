@@ -206,6 +206,7 @@ class PlayerMPD:
 
         self.end_gong_timer = multitimer.GenericTimerClass('mpd.end_gong', 0, self.trigger_gong)
         self.interval_gong_timer = multitimer.GenericMultiTimerClass('mpd.interval_gong', 0, 0, self.trigger_gong)
+        self.sequence_gong_timers = []
 
     def exit(self):
         logger.debug("Exit routine of playermpd started")
@@ -318,6 +319,9 @@ class PlayerMPD:
     def cancel_all_gongs(self):
         self.end_gong_timer.cancel()
         self.interval_gong_timer.cancel()
+        for timer in self.sequence_gong_timers:
+            timer.cancel()
+        self.sequence_gong_timers = []
 
     def trigger_gong(self, iteration=None):
         """
@@ -358,6 +362,25 @@ class PlayerMPD:
         self.cancel_all_gongs()
         self.trigger_gong()
         self.interval_gong_timer.start(iterations, minutes * 60 + seconds)
+
+    @plugs.tag
+    def play_gong_sequence(self, sequence: str, minutes: bool = True):
+        minutes = bool(minutes)
+        if type(sequence) == str:
+            sequence = sequence.removeprefix('[')
+            sequence = sequence.removesuffix(']')
+            sequence = sequence.split(',')
+            sequence = [int(item) for item in sequence]
+        logger.debug(f"play_gong_sequence (sequence:{sequence} minutes:{minutes})")
+
+        self.mpd_client.stop()
+        self.cancel_all_gongs()
+        self.trigger_gong()
+        for seq in sequence:
+            t = seq * 60 if minutes else seq
+            timer = multitimer.GenericTimerClass('mpd.sequence_gong.' + str(seq), t, self.trigger_gong)
+            timer.start()
+            self.sequence_gong_timers.append(timer)
 
     @plugs.tag
     def play(self):
