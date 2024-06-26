@@ -104,6 +104,10 @@ from .coverart_cache_manager import CoverartCacheManager
 logger = logging.getLogger('jb.PlayerMPD')
 cfg = jukebox.cfghandler.get_handler('jukebox')
 
+import RPi.GPIO as GPIO
+GPIO.setmode(GPIO.BCM)
+TRIGGER_PIN = 23
+GPIO.setup(TRIGGER_PIN, GPIO.OUT)
 
 class MpdLock:
     def __init__(self, client: mpd.MPDClient, host: str, port: int):
@@ -323,22 +327,17 @@ class PlayerMPD:
             timer.cancel()
         self.sequence_gong_timers = []
 
+    @plugs.tag
     def trigger_gong(self, iteration=None):
         """
             Blocking function, because we want the audio file to start after the gong fully sounds.
         """
         try:
             logger.debug("Triggering solenoid")
-            with self.mpd_lock:
-                from pathlib import Path
-                file = str(Path.cwd().parent.parent) + '/shared/audiofolders/Bell.mp3'
-                self.mpd_client.clear()
-                self.mpd_client.addid(file)
-                self.mpd_client.play()
-            status = self.mpd_client.status()
-            duration = float(status['duration'])
-            elapsed = float(status['elapsed'])
-            time.sleep(duration-elapsed)
+            GPIO.output(TRIGGER_PIN, GPIO.HIGH)
+            time.sleep(.1)
+            GPIO.output(TRIGGER_PIN, GPIO.LOW)
+            time.sleep(2.5)
             logger.debug("Triggering solenoid done")
         except Exception as e:
             logger.error(f"An error occurred: {e}")
