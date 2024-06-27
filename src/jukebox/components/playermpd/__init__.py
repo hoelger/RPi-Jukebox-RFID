@@ -173,7 +173,8 @@ class PlayerMPD:
         logger.info(f"Connected to MPD Version: {self.mpd_client.mpd_version}")
 
         self.current_folder_status = {}
-        if not self.music_player_status:
+        if True:
+            logger.debug("Do hard reset of music_player_status on every startup.")
             self.music_player_status['player_status'] = {}
             self.music_player_status['audio_folder_status'] = {}
             self.music_player_status.save_to_json()
