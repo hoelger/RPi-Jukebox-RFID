@@ -30,7 +30,9 @@
           "prev_song": "Previous song",
           "shuffle": "Shuffle",
           "repeat": "Repeat",
-          "toggle": "Toggle Play/Pause"
+          "toggle": "Toggle Play/Pause",
+          "play_gong_timer": "Gong Timer",
+          "play_gong_interval": "Gong Interval"
         }
       },
       "controls-selector": {
@@ -44,6 +46,7 @@
           "audio": "Audio & Volume",
           "host": "System",
           "timers": "Timers",
+          "meditation": "Meditation",
           "synchronisation": "Synchronisation"
         }
       },

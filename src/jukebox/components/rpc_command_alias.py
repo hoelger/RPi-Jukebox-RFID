@@ -11,7 +11,7 @@ See [RPC Commands](../../builders/rpc-commands.md)
 # Use the functions utils.decode_rpc_command to decode the entries!
 # --------------------------------------------------------------
 cmd_alias_definitions = {
-    # Player
+    # PLAYER
     'play_card': {
         'title': 'Play music folder triggered by card swipe',
         'note': "This function you'll want to use most often",
@@ -74,6 +74,19 @@ cmd_alias_definitions = {
         'plugin': 'ctrl',
         'method': 'repeat',
         'note': 'Repeat',
+        'ignore_card_removal_action': True},
+    # (PLAYER:) MEDITATION TIMER
+    'play_gong_timer': {
+        'package': 'player',
+        'plugin': 'ctrl',
+        'method': 'play_gong_timer',
+        'note': 'Play simple gong timer',
+        'ignore_card_removal_action': True},
+    'play_gong_interval': {
+        'package': 'player',
+        'plugin': 'ctrl',
+        'method': 'play_gong_interval',
+        'note': 'Play gong interval',
         'ignore_card_removal_action': True},
 
     # VOLUME

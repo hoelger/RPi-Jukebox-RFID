@@ -30,7 +30,9 @@
           "prev_song": "Vorheriger Song",
           "shuffle": "Zufallswiedergabe",
           "repeat": "Wiedergabe wiederholen",
-          "toggle": "Abspielen/Pause umschalten"
+          "toggle": "Abspielen/Pause umschalten",
+          "play_gong_timer": "Gong Timer",
+          "play_gong_interval": "Gong Interval"
         }
       },
       "controls-selector": {
@@ -44,6 +46,7 @@
           "audio": "Audio & Lautstärke",
           "host": "System",
           "timers": "Timer",
+          "meditation": "Meditation",
           "synchronisation": "Synchronisation"
         }
       },

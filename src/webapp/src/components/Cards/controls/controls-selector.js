@@ -75,6 +75,13 @@ const ControlsSelector = ({
           />
         }
 
+        {actionData.action === 'meditation' &&
+          <SelectTimers
+            actionData={actionData}
+            handleActionDataChange={handleActionDataChange}
+          />
+        }
+
         {actionData.action === 'audio' &&
           <SelectAudio
             actionData={actionData}

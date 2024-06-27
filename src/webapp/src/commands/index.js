@@ -115,6 +115,20 @@ const commands = {
     method: 'seek',
   },
 
+  // Meditation Timers
+  play_gong_timer: {
+    _package: 'player',
+    plugin: 'ctrl',
+    method: 'play_gong_timer',
+    argKeys: ['wait_seconds'],
+  },
+  play_gong_interval: {
+    _package: 'player',
+    plugin: 'ctrl',
+    method: 'play_gong_interval',
+    argKeys: ['wait_seconds'],
+  },
+
   // Volume
   setVolume: {
     _package: 'volume',
