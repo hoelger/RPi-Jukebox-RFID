@@ -9,6 +9,7 @@ import {
 import SelectCommandAliases from './select-command-aliases';
 import SelectPlayMusic from './actions/play-music';
 import SelectTimers from './actions/timers';
+import SelectMeditation from './actions/meditation';
 import SelectAudio from './actions/audio';
 import { buildActionData } from '../utils';
 import SelectHost from './actions/host';
@@ -76,7 +77,7 @@ const ControlsSelector = ({
         }
 
         {actionData.action === 'meditation' &&
-          <SelectTimers
+          <SelectMeditation
             actionData={actionData}
             handleActionDataChange={handleActionDataChange}
           />

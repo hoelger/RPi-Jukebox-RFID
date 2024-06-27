@@ -120,13 +120,13 @@ const commands = {
     _package: 'player',
     plugin: 'ctrl',
     method: 'play_gong_timer',
-    argKeys: ['wait_seconds'],
+    argKeys: ['wait_minutes'],
   },
   play_gong_interval: {
     _package: 'player',
     plugin: 'ctrl',
     method: 'play_gong_interval',
-    argKeys: ['wait_seconds'],
+    argKeys: ['iterations', 'wait_minutes'],
   },
 
   // Volume

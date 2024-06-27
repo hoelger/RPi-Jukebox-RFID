@@ -72,4 +72,5 @@ export {
   findActionByCommand,
   getActionAndCommand,
   getArgsValues,
+  getCommandArgKeys,
 };

@@ -89,6 +89,10 @@
         "timers": {
           "description": "Choose the amount of minutes you want the action to be performed."
         },
+        "meditation": {
+          "seconds": "Choose the amount of minutes.",
+          "iterations": "Choose the amount of iterations."
+        },
         "synchronisation": {
           "rfidcards": {
             "description": "Choose the state to set.",

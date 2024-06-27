@@ -89,6 +89,10 @@
         "timers": {
           "description": "Wähle die Anzahl der Minuten nachdem die Aktion ausgeführt werden soll."
         },
+        "meditation": {
+          "seconds": "Wähle die Anzahl der Minuten.",
+          "iterations": "Wähle die Anzahl der Wiederholungen."
+        },
         "synchronisation": {
           "rfidcards": {
             "description": "Wähle den zu setzenden Status.",

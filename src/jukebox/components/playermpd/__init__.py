@@ -343,7 +343,7 @@ class PlayerMPD:
             logger.error(f"An error occurred: {e}")
 
     @plugs.tag
-    def play_gong_timer(self, seconds: int = 0, minutes: int = 0):
+    def play_gong_timer(self, minutes: int = 0, seconds: int = 0):
         logger.debug(f"play_gong_timer ({minutes}m {seconds}s)")
         self.mpd_client.stop()
         self.cancel_all_gongs()

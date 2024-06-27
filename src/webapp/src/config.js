@@ -75,7 +75,7 @@ const JUKEBOX_ACTIONS_MAP = {
   meditation: {
     commands: {
       play_gong_timer: {},
-      // play_gong_interval: {},
+      play_gong_interval: {},
     }
   },
 
@@ -88,7 +88,9 @@ const JUKEBOX_ACTIONS_MAP = {
   },
 }
 
-const TIMER_STEPS = [5, 10, 15, 20, 30, 45, 60, 90, 120, 180, 240];
+const TIMER_STEPS = [0, 2, 5, 10, 15, 20, 30, 45, 60, 120, 180, 240];
+const MEDITATION_MINUTES_STEPS = [1, 5, 10, 15, 20, 30, 45, 60, 90, 120];
+const MEDITATION_ITERATIONS_STEPS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
 export {
   DEFAULT_AUDIO_DIR,
@@ -98,4 +100,6 @@ export {
   ROOT_DIRS,
   SUBSCRIPTIONS,
   TIMER_STEPS,
+  MEDITATION_MINUTES_STEPS,
+  MEDITATION_ITERATIONS_STEPS,
 }
